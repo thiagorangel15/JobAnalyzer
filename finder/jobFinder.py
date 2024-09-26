@@ -4,9 +4,11 @@ from dotenv import load_dotenv
 from pymongo import MongoClient
 from pymongo.server_api import ServerApi
 
-load_dotenv()
+dotenv_path = os.path.join(os.path.dirname(__file__), '..', '.env')
+load_dotenv(dotenv_path)
 
 mongo_password = os.getenv('MONGO_PASSWORD')
+
 uri = f"mongodb+srv://dbAdmin:{mongo_password}@jobanalyzermongo.dbjel.mongodb.net/?retryWrites=true&w=majority&appName=JobAnalyzerMongo"
 client = MongoClient(uri, server_api=ServerApi('1'))
 
@@ -42,6 +44,7 @@ def insertJobs(jobs):
         print("Jobs inserted successfully")
     except Exception as e:
         print(f"Error: {e}")
+
 
 def main():
     desiredJob = input("Digite o nome da vaga desejada: ")
