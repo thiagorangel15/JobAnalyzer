@@ -12,9 +12,11 @@ mongo_password = os.getenv('MONGO_PASSWORD')
 uri = f"mongodb+srv://dbAdmin:{mongo_password}@jobanalyzermongo.dbjel.mongodb.net/?retryWrites=true&w=majority&appName=JobAnalyzerMongo"
 client = MongoClient(uri, server_api=ServerApi('1'))
 
-def findJob(desiredJob):
+def findJob(desiredJob, url=None):
+    desiredJob = desiredJob.replace(" ", "%20")    
+    if url is None:
+        url = "https://jobdataapi.com/api/jobs/?country_code=BR&region_id=6&title=" + desiredJob
     
-    url = "https://jobdataapi.com/api/jobs/?country_code=BR&region_id=6&title=" + desiredJob
     response = requests.get(url)
     
     if response.status_code == 200:
@@ -24,6 +26,11 @@ def findJob(desiredJob):
         for job in data['results']:
             description = job.get('description')
             jobs.append({'title': desiredJob, 'description': description})
+        
+        next_url = data.get('next')
+        
+        if next_url is not None:
+            jobs.extend(findJob(desiredJob, next_url))
         
         return jobs
     else:
