@@ -13,7 +13,6 @@ uri = f"mongodb+srv://dbAdmin:{mongo_password}@jobanalyzermongo.dbjel.mongodb.ne
 client = MongoClient(uri, server_api=ServerApi('1'))
 
 def findJob(desiredJob, url=None):
-    desiredJob = desiredJob.replace(" ", "%20")    
     if url is None:
         url = "https://jobdataapi.com/api/jobs/?country_code=BR&region_id=6&title=" + desiredJob
     
