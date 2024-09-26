@@ -14,12 +14,26 @@ uri = f"mongodb+srv://dbAdmin:{mongo_password}@jobanalyzermongo.dbjel.mongodb.ne
 client = MongoClient(uri, server_api=ServerApi('1'))
 
 def findJob(desiredJob, url=None):
+    """
+    Finds jobs based on a desired job title.
+    
+    Args:
+        desiredJob (str): The title of the job to search for.
+        url (str, optional): The URL of the API endpoint to query. If not provided, a default URL is used.
+        
+    Returns:
+        list: A list of dictionaries representing the jobs found. Each dictionary contains 'title' and 'description' keys.
+        
+    Raises:
+        None
+    """
     if url is None:
         url = "https://jobdataapi.com/api/jobs/?country_code=BR&region_id=6&title=" + desiredJob
     
-    response = requests.get(url)
-    
-    if response.status_code == 200:
+    try:
+        response = requests.get(url)
+        response.raise_for_status()  # Raise an exception if the response status code is not 200
+        
         data = response.json()
         jobs = []
         
@@ -36,11 +50,26 @@ def findJob(desiredJob, url=None):
             jobs.extend(findJob(desiredJob, next_url))
         
         return jobs
-    else:
-        print(f"Erro ao buscar dados da API: {response.status_code}")
+    
+    except requests.exceptions.RequestException as e:
+        print(f"Ocorreu um erro na requisição: {e}")
         return []
 
 def insertJobs(jobs):
+
+    """
+    Inserts a list of jobs into the 'Jobs' collection in the 'JobAnalyzerDB' database.
+    
+    Args:
+        jobs (list): A list of dictionaries representing jobs. Each dictionary should have 'title' and 'description' keys.
+        
+    Returns:
+        None
+        
+    Raises:
+        Exception: If an error occurs during the insertion process.
+    """
+
     try:
         
         db = client['JobAnalyzerDB']
