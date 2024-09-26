@@ -3,6 +3,7 @@ import os
 from dotenv import load_dotenv
 from pymongo import MongoClient
 from pymongo.server_api import ServerApi
+from bs4 import BeautifulSoup
 
 dotenv_path = os.path.join(os.path.dirname(__file__), '..', '.env')
 load_dotenv(dotenv_path)
@@ -24,7 +25,10 @@ def findJob(desiredJob, url=None):
         
         for job in data['results']:
             description = job.get('description')
-            jobs.append({'title': desiredJob, 'description': description})
+            soup = BeautifulSoup(description, 'html.parser')
+            textDescription = soup.get_text()
+            
+            jobs.append({'title': desiredJob, 'description': textDescription})
         
         next_url = data.get('next')
         
