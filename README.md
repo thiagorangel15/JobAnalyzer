@@ -23,12 +23,10 @@ To get started with the Job Finder application, follow these steps:
 To use the Job Finder application, simply run the `main.py` file and follow the prompts to enter the desired job title and search for jobs. The application will retrieve job descriptions from the API and insert them into the MongoDB database.
 
 ## Requirements
-
-- Python 3.x
-- requests
-- pymongo
-- beautifulsoup4
-- dotenv
+Run this command in the root directory 
+```
+  pip install -r requirements.txt
+```
 
 ## License
 
