@@ -14,19 +14,6 @@ uri = f"mongodb+srv://dbAdmin:{mongo_password}@jobanalyzermongo.dbjel.mongodb.ne
 client = MongoClient(uri, server_api=ServerApi('1'))
 
 def findJob(desiredJob, url=None):
-    """
-    Finds jobs based on a desired job title.
-    
-    Args:
-        desiredJob (str): The title of the job to search for.
-        url (str, optional): The URL of the API endpoint to query. If not provided, a default URL is used.
-        
-    Returns:
-        list: A list of dictionaries representing the jobs found. Each dictionary contains 'title' and 'description' keys.
-        
-    Raises:
-        None
-    """
     if url is None:
         url = "https://jobdataapi.com/api/jobs/?country_code=BR&region_id=6&title=" + desiredJob
     
@@ -56,19 +43,6 @@ def findJob(desiredJob, url=None):
         return []
 
 def insertJobs(jobs):
-
-    """
-    Inserts a list of jobs into the 'Jobs' collection in the 'JobAnalyzerDB' database.
-    
-    Args:
-        jobs (list): A list of dictionaries representing jobs. Each dictionary should have 'title' and 'description' keys.
-        
-    Returns:
-        None
-        
-    Raises:
-        Exception: If an error occurs during the insertion process.
-    """
 
     try:
         
