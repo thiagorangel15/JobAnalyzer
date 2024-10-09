@@ -4,13 +4,16 @@ from dotenv import load_dotenv
 from pymongo import MongoClient
 from pymongo.server_api import ServerApi
 from bs4 import BeautifulSoup
+from urllib.parse import quote_plus
 
 dotenv_path = os.path.join(os.path.dirname(__file__), '..', '.env')
 load_dotenv(dotenv_path)
 
-mongo_password = os.getenv('MONGO_PASSWORD')
+username = quote_plus("dbAdmin")
+password = quote_plus(os.getenv('MONGO_PASSWORD'))
+print(password)
 
-uri = f"mongodb+srv://dbAdmin:{mongo_password}@jobanalyzermongo.dbjel.mongodb.net/?retryWrites=true&w=majority&appName=JobAnalyzerMongo"
+uri = f"mongodb+srv://{username}:{password}@jobanalyzermongo.dbjel.mongodb.net/?retryWrites=true&w=majority&appName=JobAnalyzerMongo"
 client = MongoClient(uri, server_api=ServerApi('1'))
 
 def findJob(desiredJob, url=None):
