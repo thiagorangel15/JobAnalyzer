@@ -11,64 +11,79 @@ load_dotenv(dotenv_path)
 
 username = quote_plus("dbAdmin")
 password = quote_plus(os.getenv('MONGO_PASSWORD'))
-print(password)
 
 uri = f"mongodb+srv://{username}:{password}@jobanalyzermongo.dbjel.mongodb.net/?retryWrites=true&w=majority&appName=JobAnalyzerMongo"
 client = MongoClient(uri, server_api=ServerApi('1'))
 
-def findJob(desiredJob, url=None):
+def find_jobs(desired_job: str, url: str | None = None) -> list[dict]:
+    """
+    Find jobs from jobdataapi.com.
+
+    Args:
+        desired_job (str): The desired job title.
+        url (str | None, optional): The url for the API. Defaults to None.
+
+    Returns:
+        list[dict]: A list of dictionaries containing the job title and description.
+    """
     if url is None:
-        url = "https://jobdataapi.com/api/jobs/?country_code=BR&region_id=6&title=" + desiredJob
-    
+        url = f"https://jobdataapi.com/api/jobs/?country_code=BR&region_id=6&title={desired_job}"
+
     try:
         response = requests.get(url)
-        response.raise_for_status()  # Raise an exception if the response status code is not 200
-        
+        response.raise_for_status()
+
         data = response.json()
         jobs = []
-        
-        for job in data['results']:
-            description = job.get('description')
-            soup = BeautifulSoup(description, 'html.parser')
-            textDescription = soup.get_text()
-            
-            jobs.append({'title': desiredJob, 'description': textDescription})
-        
-        next_url = data.get('next')
-        
+
+        for job in data["results"]:
+            description = job.get("description")
+            soup = BeautifulSoup(description, "html.parser")
+            text_description = soup.get_text()
+
+            jobs.append({"title": desired_job, "description": text_description})
+
+        next_url = data.get("next")
+
         if next_url is not None:
-            jobs.extend(findJob(desiredJob, next_url))
-        
+            jobs.extend(find_jobs(desired_job, next_url))
+
         return jobs
-    
+
     except requests.exceptions.RequestException as e:
-        print(f"Ocorreu um erro na requisição: {e}")
+        print(f"Erro na requisi o: {e}")
         return []
 
-def insertJobs(jobs):
+def insert_jobs(jobs: list[dict]) -> None:
+    """
+    Insert a list of jobs into the MongoDB database.
 
+    Args:
+        jobs (list[dict]): A list of dictionaries containing the job title and description.
+
+    Returns:
+        None
+    """
+    if not jobs:
+        print("Nenhum job encontrado")
+        return
     try:
-        
-        db = client['JobAnalyzerDB']
-        collection = db['Jobs']  
-        
-        collection.delete_many({})
-        print("Coleção limpa com sucesso")
-        
-        
-        collection.insert_many(jobs)  
-        print("Jobs inserted successfully")
+        job_analyzer_db = client["JobAnalyzerDB"]
+        jobs_collection = job_analyzer_db["Jobs"]
+
+        jobs_collection.delete_many({})
+        jobs_collection.insert_many(jobs)
     except Exception as e:
-        print(f"Error: {e}")
+        print(f"Erro ao inserir os jobs no banco de dados: {e}")
 
 
-def main():
-    desiredJob = input("Digite o nome da vaga desejada: ")
-    
-    jobs = findJob(desiredJob)
-    
+def main() -> None:
+    desired_job = input("Digite o nome da vaga desejada: ")
+
+    jobs = find_jobs(desired_job)
+
     if jobs:
-        insertJobs(jobs)
+        insert_jobs(jobs)
     else:
         print("Nenhum resultado encontrado")
 
